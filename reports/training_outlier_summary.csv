@@ -1,0 +1,6 @@
+﻿feature,lower_bound,upper_bound,flagged_count
+Air temperature [K],293.5,306.29999999999995,0
+Process temperature [K],305.5,314.29999999999995,0
+Rotational speed [rpm],1132.5,1904.5,244
+Torque [Nm],12.550000000000008,67.35,35
+Tool wear [min],-113.0,327.0,0
