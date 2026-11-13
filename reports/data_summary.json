@@ -1,0 +1,30 @@
+{
+  "rows": 10000,
+  "columns": 14,
+  "missing_values": 0,
+  "duplicate_rows": 0,
+  "class_counts": {
+    "0": 9661,
+    "1": 339
+  },
+  "failure_rate": 0.0339,
+  "features": [
+    "Type",
+    "Air temperature [K]",
+    "Process temperature [K]",
+    "Rotational speed [rpm]",
+    "Torque [Nm]",
+    "Tool wear [min]"
+  ],
+  "target": "Machine failure",
+  "excluded_columns": [
+    "UDI",
+    "Product ID",
+    "TWF",
+    "HDF",
+    "PWF",
+    "OSF",
+    "RNF"
+  ],
+  "sha256": "dc6630cd9b1f0f853922fad78a1b6436570d3f1ec863f1dd5c4340ac56bc8a8e"
+}
