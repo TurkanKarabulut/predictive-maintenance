@@ -1,0 +1,73 @@
+{
+  "model_name": "random_forest",
+  "model_version": "v20261113T162246923567Z",
+  "artifact": "model_v20261113T162246923567Z.joblib",
+  "created_at_utc": "2026-11-13T16:22:47.017373+00:00",
+  "random_seed": 42,
+  "decision_threshold": 0.5,
+  "selection_rule": "Highest validation F1; ties: recall, average precision, model name",
+  "features": [
+    "Type",
+    "Air temperature [K]",
+    "Process temperature [K]",
+    "Rotational speed [rpm]",
+    "Torque [Nm]",
+    "Tool wear [min]"
+  ],
+  "target": "Machine failure",
+  "split_sizes": {
+    "train": 6000,
+    "validation": 2000,
+    "test": 2000
+  },
+  "split_class_counts": {
+    "train": {
+      "0": 5797,
+      "1": 203
+    },
+    "validation": {
+      "0": 1932,
+      "1": 68
+    },
+    "test": {
+      "0": 1932,
+      "1": 68
+    }
+  },
+  "data_sha256": "dc6630cd9b1f0f853922fad78a1b6436570d3f1ec863f1dd5c4340ac56bc8a8e",
+  "estimator_parameters": {
+    "bootstrap": true,
+    "ccp_alpha": 0.0,
+    "class_weight": "balanced",
+    "criterion": "gini",
+    "max_depth": null,
+    "max_features": "sqrt",
+    "max_leaf_nodes": null,
+    "max_samples": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 2,
+    "min_samples_split": 2,
+    "min_weight_fraction_leaf": 0.0,
+    "monotonic_cst": null,
+    "n_estimators": 200,
+    "n_jobs": -1,
+    "oob_score": false,
+    "random_state": 42,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "test_metrics": {
+    "accuracy": 0.9695,
+    "precision": 0.5376344086021505,
+    "recall": 0.7352941176470589,
+    "f1": 0.6211180124223602,
+    "roc_auc": 0.9550298380221653,
+    "average_precision": 0.6802985002526513,
+    "true_negative": 1889,
+    "false_positive": 43,
+    "false_negative": 18,
+    "true_positive": 50,
+    "batch_inference_ms": 68.8228000071831,
+    "batch_size": 2000
+  }
+}

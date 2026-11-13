@@ -1,0 +1,14 @@
+{
+  "accuracy": 0.9695,
+  "precision": 0.5376344086021505,
+  "recall": 0.7352941176470589,
+  "f1": 0.6211180124223602,
+  "roc_auc": 0.9550298380221653,
+  "average_precision": 0.6802985002526513,
+  "true_negative": 1889,
+  "false_positive": 43,
+  "false_negative": 18,
+  "true_positive": 50,
+  "batch_inference_ms": 68.8228000071831,
+  "batch_size": 2000
+}
