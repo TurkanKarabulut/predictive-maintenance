@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Makine Sağlığı | Arıza Tespit Sistemi</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #eef2f7;
+      color: #17253b;
+    }
+    main { max-width: 1050px; margin: 45px auto; padding: 20px; }
+    h1 { margin-bottom: 8px; }
+    .muted { color: #526279; line-height: 1.6; }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 28px;
+    }
+    .card {
+      background: white;
+      border: 1px solid #dce3ed;
+      border-radius: 16px;
+      padding: 28px;
+    }
+    label { display: block; margin: 16px 0 6px; font-weight: 600; }
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #b7c4d5;
+      border-radius: 8px;
+      font: inherit;
+    }
+    button {
+      margin-top: 24px;
+      background: #2457d6;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .6; cursor: wait; }
+    #status { font-size: 32px; margin: 20px 0; font-weight: 700; }
+    .normal { color: #167349; }
+    .fault { color: #bc2635; }
+    dt { color: #526279; margin-top: 18px; }
+    dd { margin: 5px 0; overflow-wrap: anywhere; }
+    #error { color: #a91f2e; white-space: pre-wrap; }
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 1fr; }
+      main { margin-top: 15px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Makine Sağlığı ve Arıza Tespiti</h1>
+  <p class="muted">
+    Çalışma değerlerini girin, kaydedilmiş makine öğrenmesi modeliyle
+    mevcut çalışma durumunu değerlendirin.
+  </p>
+
+  <div class="layout">
+    <section class="card">
+      <h2>Çalışma Verileri</h2>
+      <form id="prediction-form">
+        <label for="type">Ürün tipi</label>
+        <select id="type" name="type">
+          <option value="L">L — Düşük kalite sınıfı</option>
+          <option value="M" selected>M — Orta kalite sınıfı</option>
+          <option value="H">H — Yüksek kalite sınıfı</option>
+        </select>
+
+        <label for="air">Hava sıcaklığı (K)</label>
+        <input id="air" name="air_temperature"
+               type="number" min="0.01" step="any" value="298.1" required>
+
+        <label for="process">İşlem sıcaklığı (K)</label>
+        <input id="process" name="process_temperature"
+               type="number" min="0.01" step="any" value="308.6" required>
+
+        <label for="speed">Dönme hızı (rpm)</label>
+        <input id="speed" name="rotational_speed"
+               type="number" min="0.01" step="any" value="1551" required>
+
+        <label for="torque">Tork (Nm)</label>
+        <input id="torque" name="torque"
+               type="number" min="0" step="any" value="42.8" required>
+
+        <label for="wear">Takım aşınması (dakika)</label>
+        <input id="wear" name="tool_wear"
+               type="number" min="0" step="any" value="0" required>
+
+        <button id="submit" type="submit">Durumu Analiz Et</button>
+      </form>
+      <p id="error" role="alert"></p>
+    </section>
+
+    <section class="card" aria-live="polite">
+      <h2>Tahmin Sonucu</h2>
+      <p id="status">Henüz tahmin yok</p>
+      <dl>
+        <dt>Modelin arıza olasılığı çıktısı</dt>
+        <dd id="probability">—</dd>
+        <dt>Karar eşiği</dt>
+        <dd id="threshold">—</dd>
+        <dt>Kullanılan model</dt>
+        <dd id="model">—</dd>
+        <dt>Model sürümü</dt>
+        <dd id="version">—</dd>
+        <dt>Tahmin zamanı</dt>
+        <dd id="timestamp">—</dd>
+      </dl>
+      <p class="muted">
+        Bu prototip sentetik AI4I 2020 verisiyle eğitilmiştir.
+        Çıktı, gerçek endüstriyel ortamda doğrulanmış bakım kararı
+        veya gelecekteki arıza zamanı tahmini değildir.
+      </p>
+    </section>
+  </div>
+</main>
+
+<script>
+const form = document.getElementById("prediction-form");
+const button = document.getElementById("submit");
+const errorBox = document.getElementById("error");
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  button.disabled = true;
+  errorBox.textContent = "";
+
+  const status = document.getElementById("status");
+  status.textContent = "Analiz ediliyor...";
+  status.className = "";
+
+  for (const id of [
+    "probability", "threshold", "model", "version", "timestamp"
+  ]) {
+    document.getElementById(id).textContent = "—";
+  }
+
+  const payload = {};
+  for (const [key, value] of new FormData(form)) {
+    payload[key] = key === "type" ? value : Number(value);
+  }
+
+  try {
+    const response = await fetch("/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        response.status === 422
+          ? "Giriş değerleri geçersiz. Alanları kontrol edin."
+          : "Sunucu tahmini tamamlayamadı. HTTP " + response.status
+      );
+    }
+
+    const result = await response.json();
+    status.textContent = result.prediction === 1
+      ? "Arıza Tespit Edildi"
+      : "Normal Çalışma";
+    status.className = result.prediction === 1 ? "fault" : "normal";
+
+    document.getElementById("probability").textContent =
+      (result.probability * 100).toFixed(2) + " %";
+    document.getElementById("threshold").textContent =
+      result.decision_threshold;
+    document.getElementById("model").textContent = result.model_name;
+    document.getElementById("version").textContent = result.model_version;
+    document.getElementById("timestamp").textContent =
+      new Date(result.timestamp_utc).toLocaleString("tr-TR");
+  } catch (error) {
+    status.textContent = "Tahmin alınamadı";
+    status.className = "";
+    errorBox.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
